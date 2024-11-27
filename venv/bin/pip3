@@ -1,4 +1,4 @@
-#!/Users/leonardo01px2020/Desktop/Portfolio/headstarter/LineupTracker/venv/bin/python3
+#!/Users/leonardo01px2020/Desktop/Portfolio/headstarter/LineupTracker/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
