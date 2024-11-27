@@ -133,11 +133,8 @@ selected_team = st.selectbox("Select a team", teams.keys())
 if selected_team:
     team = teams[selected_team]
     bigsoup = BeautifulSoup(requests.get("http://popcornmachine.net/").text, features="lxml")
-    urls = ["https://popcornmachine.net/" + t["href"] for t in bigsoup.find_all("a", href=True) if t.get("href")]
-    games = [
-        str(i + 1) + ". " + get_key_from_value(teams, url[-6:-3])
-        for i, url in enumerate(urls) if url and url[-6:-3]
-    ]
+    urls = ["https://popcornmachine.net/" + t["href"] for t in bigsoup.find_all("a") if t["href"].startswith("gf") and team in t["href"]]
+    games = [str(i + 1) + ". " + urls[i][-6:-3] + " vs " + urls[i][-3:] for i in range(len(urls))]
     if games:
         st.markdown("### Games Available:")
 
