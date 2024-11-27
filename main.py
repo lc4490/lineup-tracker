@@ -117,7 +117,7 @@ if(selected_team):
     team = teams[selected_team]
     bigsoup = BeautifulSoup(requests.get("http://popcornmachine.net/").text, features="lxml")
     urls = ["https://popcornmachine.net/"+t["href"] for t in bigsoup.find_all("a") if t["href"].startswith("gf") and team in t["href"]]
-    games = [str(i+1) + ". " + get_key_from_value(teams, urls[i][-6:-3])+" vs "+get_key_from_value(teams, urls[i][-3:]) for i in range(len(urls))]
+    games = [str(i+1) + ". " + urls[i][-6:-3]+" vs "+urls[i][-3:] for i in range(len(urls))]
     if(games):
         st.markdown("Games Available:")
         for game in games:
