@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 from bs4 import BeautifulSoup
+import pandas as pd
 
 teams = {
     "Atlanta Hawks": "ATL",
@@ -96,8 +97,24 @@ def subtractTime(time1, time2):
     return minutes_delta+ ":" +seconds_delta
 
 def prettyPrint(lineups):
-    for s in lineups:
-        st.markdown(s)
+    # Create a list of dictionaries to structure the data
+    data = []
+    for lineup in lineups:
+        data.append({
+            "Lineup": ", ".join(lineup[0]),  # Combine the lineup into a single string
+            "+/-": lineup[1],               # The +/- value
+            "Minutes": lineup[2]            # The minutes
+        })
+    
+    # Convert the data into a pandas DataFrame
+    df = pd.DataFrame(data)
+
+    # Remove the index explicitly by resetting and dropping it
+    df.reset_index(drop=True, inplace=True)
+
+    # Use st.table to display the data without indexing
+    st.dataframe(df)
+
         
 def Sort(sub_li):
     l = len(sub_li)
@@ -113,20 +130,44 @@ st.title("Lineup Tracker")
 
 selected_team = st.selectbox("Select a team", teams.keys())
 
-if(selected_team):
+if selected_team:
     team = teams[selected_team]
     bigsoup = BeautifulSoup(requests.get("http://popcornmachine.net/").text, features="lxml")
-    urls = ["https://popcornmachine.net/"+t["href"] for t in bigsoup.find_all("a") if t["href"].startswith("gf") and team in t["href"]]
-    games = [str(i+1) + ". " + urls[i][-6:-3]+" vs "+urls[i][-3:] for i in range(len(urls))]
-    if(games):
-        st.markdown("Games Available:")
+    urls = ["https://popcornmachine.net/" + t["href"] for t in bigsoup.find_all("a") if t["href"].startswith("gf") and team in t["href"]]
+    games = [str(i + 1) + ". " + urls[i][-6:-3] + " vs " + urls[i][-3:] for i in range(len(urls))]
+    if games:
+        st.markdown("### Games Available:")
+
+        # Add a scrollable box for the games list
+        scrollable_style = """
+        <style>
+        .scrollable-box {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #black;
+        }
+        </style>
+        """
+        st.markdown(scrollable_style, unsafe_allow_html=True)
+
+        # Combine all games into a single HTML string
+        games_html = '<div class="scrollable-box">'
         for game in games:
-            st.markdown(game)
-        sample = st.number_input("How many games would you like to track?", min_value = 1, max_value = len(games))
+            games_html += f"<p>{game}</p>"
+        games_html += "</div>"
+
+        # Render the entire scrollable box with the games inside
+        st.markdown(games_html, unsafe_allow_html=True)
+        
+        st.write("\n")
+
+        sample = st.number_input("How many games would you like to track?", min_value=1, max_value=len(games))
         if st.button("Find lineups"):
             lineups = get_lineups(urls, sample)
             prettyPrint(lineups)
-        
         
     
     # selected_games = st.selectbox("Select games", games)
