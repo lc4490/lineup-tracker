@@ -54,7 +54,10 @@ def get_lineups(urls, sample):
             temp = temp[-6:]
             temp[-1]=temp[-1][:-4]
             temp.append(subtractTime(time[3],time[6]))
-            if temp[0].startswith(get_key_from_value(teams, team).split(" ")[-1]):
+            team_name = get_key_from_value(teams, team).split(" ")[-1]
+            if(team_name =="Blazers"):
+                team_name="Trail Blazers"
+            if temp[0].startswith(team_name):
                 temp[0]=int(temp[0].split(" ")[-1])
                 
                 dup = False
